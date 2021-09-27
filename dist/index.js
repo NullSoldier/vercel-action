@@ -30489,6 +30489,9 @@ const vercelOrgId = core.getInput('vercel-org-id');
 const vercelProjectId = core.getInput('vercel-project-id');
 const vercelScope = core.getInput('scope');
 const vercelProjectName = core.getInput('vercel-project-name');
+
+const sourceBranch = context.ref.replace('refs/heads/', '');
+
 const aliasDomains = core
   .getInput('alias-domains')
   .split('\n')
@@ -30797,7 +30800,6 @@ async function run() {
   core.debug(`actor : ${context.actor}`);
   core.debug(`sha : ${context.sha}`);
   core.debug(`workflow : ${context.workflow}`);
-  let { ref } = context;
   let { sha } = context;
   await setEnv();
 
@@ -30813,7 +30815,6 @@ async function run() {
       pullRequestPayload.pull_request || pullRequestPayload.pull_request_target;
     core.debug(`head : ${pr.head}`);
 
-    ref = pr.head.ref;
     sha = pr.head.sha;
     core.debug(`The head ref is: ${pr.head.ref}`);
     core.debug(`The head sha is: ${pr.head.sha}`);
@@ -30828,7 +30829,7 @@ async function run() {
     }
   }
 
-  const deploymentUrl = await vercelDeploy(ref, commit);
+  const deploymentUrl = await vercelDeploy(sourceBranch, commit);
 
   if (deploymentUrl) {
     core.info('set preview-url output');
